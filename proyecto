@@ -1,0 +1,105 @@
+ #define salidaA 2
+ #define salidaB 3
+ #define boton 4
+#define IN1M1  8
+#define IN2M1  9
+#define IN3M1  10
+#define IN4M1  11
+#define IN1M2  4
+#define IN2M2  3
+#define IN3M2  5
+#define IN4M2  6
+ int contador = 0; 
+ int estadoA;
+ int estadoPrevioA;
+ int paso[8][4]=
+ { 
+  {1,0,0,0},
+  {1,1,0,0},
+  {0,1,0,0},
+  {0,1,1,0},
+  {0,0,1,0},
+  {0,0,1,1},
+  {0,0,0,1},
+  {1,0,0,1}
+ 
+ };
+ float inByte = 0;
+int BPM = 0;
+int beat_viejo = 0;
+int beatInd;
+void motor (int i);
+  void setup() { 
+   pinMode (salidaA,INPUT); 
+   pinMode (salidaB,INPUT); 
+   pinMode (boton, INPUT_PULLUP);
+   pinMode (IN1M1, OUTPUT);
+   pinMode (IN2M1, OUTPUT);
+   pinMode (IN3M1, OUTPUT);
+   pinMode (IN4M1, OUTPUT);
+   pinMode (IN1M2, OUTPUT);
+   pinMode (IN2M2, OUTPUT);
+   pinMode (IN3M2, OUTPUT);
+   pinMode (IN4M2, OUTPUT);
+   
+  
+  
+   Serial.begin (9600);
+   // Lee el estado inicial de la salida A
+   estadoPrevioA = digitalRead(salidaA); 
+
+     
+ } 
+void loop() {
+  
+void  calcularBPM();
+   estadoA = digitalRead(salidaA);
+   // Si el estado previo de la salida A era otro
+   // significa que se ha producido un pulso
+   if (estadoA != estadoPrevioA){     
+     // Si el estado de salida B es diferente del estado
+     // de salida A el codificador esta girando a la derecha
+     if (digitalRead(salidaB) != estadoA) { 
+       contador ++;
+     } else {
+       contador --;
+     }
+     Serial.print("Posición: ");
+     Serial.println(contador);
+   } 
+   // actualiza el estado guardado
+   estadoPrevioA = estadoA;
+ 
+  bool Bot = digitalRead(boton);
+   if (!Bot) // si se pulsa el boton su valor va a BAJO
+    { Serial.println("Boton pulsado: Contador a 0");
+      contador = 0 ;
+      delay(300);
+    }
+   
+      for (int i = 0; i < 5; i++)
+    {
+      digitalWrite(IN1M2, paso[i][0]);
+      digitalWrite(IN2M2, paso[i][1]);
+      digitalWrite(IN3M2, paso[i][2]);
+      digitalWrite(IN4M2, paso[i][3]);
+      delay(10);
+    }
+}
+
+
+
+void calcularBPM () 
+ { 
+  int beat_nuevo = millis();    
+  int diff = beat_nuevo - beat_viejo;    
+  float actualBPM = 60000 / diff;    
+  beats[beatInd] = actualBPM;  
+  float total = 0.0;
+  for (int i = 0; i < 500; i++){
+    total += beats[i];
+  }
+  BPM = int(total / 500);
+  beat_viejo = beat_nuevo;
+  beatInd = (beatInd + 1) % 500;  
+  }
